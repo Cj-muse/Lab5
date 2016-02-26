@@ -3,7 +3,7 @@ int color;
 main()
 {
   char name[64]; int pid, cmd;
-
+printf("in u1 main\n");
   while(1){
     pid = getpid();
     color = 0x0C;
@@ -24,9 +24,13 @@ main()
            case 4 : kswitch();  break;
            case 5 : wait();     break;
            case 6 : exit();     break;
-           case 7 : cmgetc();   break;
-           case 8 : cmputc();   break;
-           
+
+           case 7 : fork();     break;
+           case 8 : exec();     break;
+
+           case 9 : cmgetc();   break;
+           case 10 : cmputc();   break;
+
            default: invalid(name); break;
     }
   }

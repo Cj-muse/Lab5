@@ -123,6 +123,13 @@ PROC *kfork(char *filename);
 int kgetpid();
 int kprintstatus();
 int kchname(char name[32]);
+int get_block(u16 blk, char *buf);
+
+int fork();
+int exec();
+
+int ufork();
+int uexec();
 
 //io.c
 int rpu(u32 x);
