@@ -118,13 +118,15 @@ _goUmode:
 
         iret
 
+
 ! The following is for loader functionality
-        .globl _diskr,_setes,_inces,_printf
+! added for lab5
+       .globl _diskr,_setes,_inces,_printf
 
                                !        4    6      8     10
 _diskr:                        ! diskr(cyl, head, sector, buf)
         push  bp
-      	mov   bp,sp
+        mov   bp,sp
 
         movb  dl, #0x00        ! drive 0=fd0 in DL
         movb  dh, 6[bp]        ! head        in DH

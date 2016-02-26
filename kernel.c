@@ -185,6 +185,34 @@ int kchname(char name[32])
 	strcpy(running->name, str);
 }
 
+
+int kexec(char *y) // y points at filenmae in Umode space
+{
+	int i, length = 0;
+ 	char filename[64], *cp = filename;
+ 	u16 segment = running->uss; // same segment
+ 	/* get filename from U space with a length limit of 64 */
+ 	while( (*cp++ = get_byte(running->uss, y++)) && length++ < 64 );
+
+ 	if (!load(filename, segment)) // load filename to segment
+ 	{
+		return -1; // if load failed, return -1 to Umode
+	}
+
+	/* re-initialize process ustack for it return to VA=0 */
+ 	for (i=1; i<=12; i++)
+	{ 		put_word(0, segment, -2*i); 	}
+
+	running->usp = -24; // new usp = -24
+	/* -1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 ustack layout */
+ 	/* flag uCS uPC ax bx cx dx bp si di uES uDS */
+ 	put_word(segment, segment, -2*12); // saved uDS=segment
+ 	put_word(segment, segment, -2*11); // saved uES=segment
+ 	put_word(segment, segment, -2*2); // uCS=segment; uPC=0
+ 	put_word(0x0200, segment, -2*1); // Umode flag=0x0200
+}
+
+
 int get_block(u16 blk, char *buf)  // load disk block blk to char buf[1024]
 {
     // Convert blk into (C,H,S) format by Mailman to suit disk geometry

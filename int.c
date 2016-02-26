@@ -11,7 +11,6 @@ int kcinth()
   char str[64];
   u16 segment, offset; int a, b, c, d, r;
   segment = running->uss; offset = running->usp;
-
   printf("kcinth()\n\r");
 
   /* get syscall parameters from ustack */
@@ -30,9 +29,12 @@ int kcinth()
        case 5 : r = kkwait(b);        break;
        case 6 : r = kkexit(b);        break;
 
+       // fork and exec kernal calls
+       //case 7 : r = fork();
+       //case 8 : r = kexec(b);
        /***gec()/putc syscalls****/
-       case 7 : r = kgetc();        break;
-       case 8 : r = kputc(b);        break;
+       case 9 : r = kgetc();        break;
+       case 10 : r = kputc(b);        break;
 
        case 99: kkexit(b);            break;
        default: printf("invalid syscall # : %d\n", a);
