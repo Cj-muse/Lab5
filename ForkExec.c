@@ -1,14 +1,15 @@
-#include "header.h"
+#include "ext2.h"
 
 //loader
 int load(char *filename, u16 segment)
 {
   int r = 0;
   u32 codeSection, dataSection, bssSection;
+  HEADER header;
   printf("Load()\n");
 
   //1. find the inode of filename; return 0 if fails;
-  r = getInodeNumberFromFile(filename);
+  //r = getInodeNumberFromFile(filename);
 
   //2. read file header to get tsize, dsize and bsize;
   codeSection = header.tsize;

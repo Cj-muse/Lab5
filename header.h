@@ -132,7 +132,7 @@ int exec();
 
 int ufork();
 int uexec();
->>>>>>> e355616920d7db7d8cc4d277a493474aa26b8b91
+
 
 //io.c
 int rpu(u32 x);
