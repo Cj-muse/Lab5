@@ -153,9 +153,6 @@ PROC *kfork(char *filename)
 	printf("\rp->uss = %x p->usp = %d\n\r", p->uss, p->usp);
   enqueue(&readyQueue, p); // enp intreadyQueue by priority
   printf("kfork(): success\n\r");
-  //printList("readyqueue", readyQueue);
-  //printList("freeList", freeList)	;
-
   return p;
 }
 
@@ -186,6 +183,13 @@ int kchname(char name[32])
 
 	//change the name
 	strcpy(running->name, str);
+}
+
+int get_block(u16 blk, char *buf)  // load disk block blk to char buf[1024]
+{
+    // Convert blk into (C,H,S) format by Mailman to suit disk geometry
+    //      CYL         HEAD            SECTOR
+    diskr( blk/18, ((2*blk)%36)/18, (((2*blk)%36)%18), buf);
 }
 
 /////////////////
