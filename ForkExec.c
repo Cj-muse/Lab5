@@ -9,7 +9,7 @@ int load(char *filename, u16 segment)
   printf("Load()\n");
 
   //1. find the inode of filename; return 0 if fails;
-  //r = getInodeNumberFromFile(filename);
+  r = getInodeNumberFromFile(filename);
 
   //2. read file header to get tsize, dsize and bsize;
   codeSection = header.tsize;

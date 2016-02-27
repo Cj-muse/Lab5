@@ -82,6 +82,8 @@ int *FP;
 char *table = "0123456789ABCDEF";
 
 #define  BOOTSEG 0x9000
+#define MAX 256
+#define NULL 0
 char mbr[512];
 char ans[64];
 
@@ -125,6 +127,21 @@ int kprintstatus();
 int kchname(char name[32]);
 int get_block(u16 blk, char *buf);
 
+//inode.c
+int getInodeNumberFromFile(char *filename);
+//INODE *findInode(char path);
+
+//INODE *getINODE(int *dev, int ino, int InoBeginBlk);
+//int getInodeNumber(int *dev, char *pathname[MAX], int InoBeginBlk);
+
+//char **chopFirstStringElement(char *array[MAX]);
+int parseInput(char *input, char **parsedinput, char *delimiter);
+
+char *getBaseName(char *path);
+char *getDirName(char *path);
+char **chopLastString(char *path[MAX]);
+
+
 
 //ForkExec.c
 int fork();
@@ -132,7 +149,6 @@ int exec();
 
 int ufork();
 int uexec();
-
 
 //io.c
 int rpu(u32 x);
