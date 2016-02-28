@@ -35,6 +35,32 @@ int getInodeNumberFromFile(char *filename)
   //return inode number;
 }
 
+INODE *getINODE(int ino, int InoBeginBlk)
+{
+	int offset = 0;
+	int inoblock=0;
+	int blocknumber;
+	INODE * inode;	
+	
+	//printf("In getINODE ino = %d\n", ino);	
+	//printf("InoBeginBlk = %d\n", InoBeginBlk);
+
+	inoblock = (ino-1)/8;
+	offset = (ino-1)%8;
+
+	blocknumber = inoblock + InoBeginBlk;
+	get_block(blocknumber, buffer);
+
+	//printf("InoBeginBlk = %d\n", InoBeginBlk);
+	
+	// block is now in buffer
+	// access specific inode with offset 
+	inode = (INODE *)buffer + offset;
+	printf("returning an inode %d ", ino);
+	//printf("at address %x from buffer %x\n",inode,buffer);
+	return inode;
+}
+
 /*int clear_bss(segment, tsize, dsize, bsize)
 u16 segment, tsize, dsize, bsize;
 {
