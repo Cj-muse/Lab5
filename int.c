@@ -30,8 +30,8 @@ int kcinth()
        case 6 : r = kkexit(b);        break;
 
        // fork and exec kernal calls
-       //case 7 : r = fork();
-       //case 8 : r = kexec(b);
+       case 7 : r = fork();
+       case 8 : r = kexec(b);
        /***gec()/putc syscalls****/
        case 9 : r = kgetc();        break;
        case 10 : r = kputc(b);        break;
@@ -40,7 +40,9 @@ int kcinth()
        default: printf("invalid syscall # : %d\n", a);
 
    }
+    //printf("r = %d\n", r);
 	 put_word(r, segment, offset + 2*AX); // return value in uax
+   return;
 }
 
 //============= WRITE C CODE FOR syscall functions ======================

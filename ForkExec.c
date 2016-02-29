@@ -1,32 +1,98 @@
-#include "ext2.h"
+#include "header.h"
 
 //loader
-int load(char *filename, u16 segment)
+/*int load(char *filename, u16 segment)
 {
   int r = 0;
   u32 codeSection, dataSection, bssSection;
-  HEADER header;
+  HEADER *header;
   printf("Load()\n");
 
   //1. find the inode of filename; return 0 if fails;
-  r = getInodeNumberFromFile(filename);
-  //getInode(r);
+  r = getInodeFromFile(filename); // will store inode in ip
+  if (r == 0)
+  {printf("could not find file...\n");}
+  printf("ino = %d\n", r);
+  printf("inode.i_mode = %x\n", ip->i_mode);
 
   //2. read file header to get tsize, dsize and bsize;
-  codeSection = header.tsize;
-  dataSection = header.dsize;
-  bssSection = header.bsize;
+  getblk((u16)ip->i_block[0], buffer2);
+  header = (HEADER *)buffer2;
+
+  codeSection = header->tsize;
+  dataSection = header->dsize;
+  bssSection = header->bsize;
+  printf("codesize = %d\n", codeSection);
+  printf("dataSection = %d\n", dataSection);
+  printf("bssSection = %d\n", bssSection);
+  printf("ID_space = %x\n", header->ID_space);
+  printf("total_size = %d\n", header->total_size);
 
   //3. load [code|data] sections of filename to memory segment;
+  printf("loading file %s to segment %x\n", filename, segment);
+  setes(segment);
+
+  //printf("loading direct blocks : \n");
+  for (i=0; i<12; i++)
+  {
+    if (ip->i_block[i]==0){break;}
+
+    //printf("loading i_block[%d] = %d\n", i, (u16)ip->i_block[i]);
+    getblk((u16)ip->i_block[i], 0);
+    //putc('.');
+    inces(); // increment es
+ }
+
+ // load indirect blocks if any
+  if ( (u16)ip->i_block[12])
+  {
+    up = (u32 *)b2;
+    while(*up)
+    {
+      getblk((u16)*up, 0); //putc('.');
+      inces();
+      up++;
+    }
+  }
 
   //4. clear bss section of loaded image to 0;
+  //clear_bss(segment, codeSection, dataSection, bssSection);
 
   //5. return 1 for success;
+    printf("all things ran......................................\n");
+}*/
+
+int move(segment, tsize, dsize) u16 segment, tsize, dsize;
+{
+  u16 i,w;
+
+  for (i=0; i<=tsize+dsize; i+=2){
+      w = get_word(segment+2, i);
+      put_word(w, segment, i);
+  }
+}
+
+int clear_bss(segment, tsize, dsize, bsize)
+u16 segment, tsize, dsize, bsize;
+{
+   u16 i,j, seg, tdsize, rem;
+
+   tdsize = tsize + dsize;
+   seg = segment + (tdsize)/16;
+
+   rem = tdsize % 16;
+
+   for (i=0; i<rem; i++)
+     put_byte(0, seg, i);
+
+   for (j=0; j<bsize; j++)
+    put_byte(0, seg, j + i);
 }
 
 
+
 //Fork and Exec below
-/*int copyImage(u16 pseg, u16 cseg, u16 size)
+int copyImage(u16 pseg, u16 cseg, u16 size)
 {
   u16 i;
   for (i=0; i<size; i++)
@@ -40,6 +106,7 @@ int fork()
   int pid; u16 segment;
 
   PROC *p = kfork(0); // kfork() a child, do not load image file
+  //printf("p->pid = %d\n", p->pid);
   if (p==0)
   {
     return -1; // kfork failed
@@ -57,6 +124,9 @@ int fork()
   put_word(segment, segment, p->usp+2); // uES=segment
   put_word(0, segment, p->usp+2*8); // uax=0
   put_word(segment, segment, p->usp+2*10); // uCS=segment
+
+  printf("fork(): forked child %d\n", p->pid);
+
   return p->pid;
 }
 
@@ -66,7 +136,7 @@ int exec()
   //1. get filename from Umode space;
   /*int i = kexec()
   if ( == -1)
-  {}*//*
+  {}*/
 }
 
 int kexec(char *y) // y points at filenmae in Umode space
@@ -75,18 +145,18 @@ int kexec(char *y) // y points at filenmae in Umode space
  char filename[64], *cp = filename;
  u16 segment = running->uss; // same segment
 
- /* get filename from U space with a length limit of 64 *//*
+ /* get filename from U space with a length limit of 64 */
  while( (*cp++ = get_byte(running->uss, y++)) && length++ < 64 );
  if (!load(filename, segment)); // load filename to segment
  return -1; // if load failed, return -1 to Umode
 
- /* re-initialize process ustack for it return to VA=0 *//*
+ /* re-initialize process ustack for it return to VA=0 */
  for (i=1; i<=12; i++)
  put_word(0, segment, -2*i);
  running->usp = -24; // new usp = -24
 
  /* -1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 ustack layout */
- /* flag uCS uPC ax bx cx dx bp si di uES uDS *//*
+ /* flag uCS uPC ax bx cx dx bp si di uES uDS */
  put_word(segment, segment, -2*12); // saved uDS=segment
  put_word(segment, segment, -2*11); // saved uES=segment
  put_word(segment, segment, -2*2); // uCS=segment; uPC=0
@@ -95,7 +165,7 @@ int kexec(char *y) // y points at filenmae in Umode space
 
 /************************************************/
 //    User commands for fork and exec
-/************************************************//*
+/************************************************/
 int ufork() // user fork command
 {
   int child = fork();
@@ -115,4 +185,4 @@ int uexec() // user exec command
   gets(filename);
   r = exec(filename);
   printf("exec failed\n");
-}*/
+}

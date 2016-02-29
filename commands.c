@@ -1,4 +1,4 @@
-#include "kernel.c"
+#include "header.h"
 
 // 's' command
 do_tswitch()

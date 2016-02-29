@@ -1,83 +1,126 @@
-#include "ext2.h"
+#include "header.h"
 
-int getInodeNumberFromFile(char *filename)
+int getInodeFromFile(char *filename)
 {
   char path[10][32];
   int numberOfFiles = 0;
-  int i = 0;
-  u16 blk, iblk;
-
+  int i = 0, ino = 0;
+  u16 blk;
 
   printf("GetInodeNumberFromFile() \n");
   printf("filename = %s\n", filename);
 
   //parse filename into a char *path[MAX]
   numberOfFiles = parseInput(filename, path, "/");
-  while(i < numberOfFiles)
-  {
-    printf("path[%d] = %s\n", i, path[i]);
-    i++;
-  }
 
   getblk(2, buffer); // get the group descriptor
   gp = (GD *)buffer;
-  iblk = (u16)gp->bg_inode_table; //get the inode begin block
-  printf("iblk=%d\n", iblk);
-  getblk(iblk, buffer);  /* read first inode block */
-  ip = (INODE *)buffer +1;
+  InodeBeginBlk = (u16)gp->bg_inode_table; //get the inode begin block
+  printf("InodeBeginBlk=%d\n", InodeBeginBlk);
+  getblk(InodeBeginBlk, buffer);  /* read first inode block */
+  ip = (INODE *)buffer +1; // now you have the root INODE
+  printf("ip->i_mode=%x\n", ip->i_mode);
 
-  //search directory for current file in path.
-  // inode = searchDirectory(dirptr, filename);
-
-  //search through path for dir entry that matches basename.
-
-
-  //return inode number;
+  //search for file using the path.
+  ino = findInode(path);
+  return ino;
 }
 
-INODE *getINODE(int ino, int InoBeginBlk)
+int findInode(char path[10][32])
+{
+    int i = 0, j = 0, ino=0;
+
+    while (strcmp(path[i], "") != 0)
+    {
+      ino = search(path[i]);
+      if (ino ==-1)
+      {
+        printf("seach could not find file\n" );
+        return 0;
+      }
+      ip = getINODE(ino);
+      i++;
+    }
+    printf("ino = %d\n", ino);
+    return ino;
+}
+
+u16 search(char name[32])
+{
+  int i; char c; DIR *d;
+  printf("searching for %s\n", name);
+  for (i=0; i<12; i++){ // assume a DIR has at most 12 direct blocks
+    if ( (u16)ip->i_block[i] ){
+      getblk((u16)ip->i_block[i], buffer2);
+      d = (DIR *)buffer2;
+      while ((char *)d < &buffer2[1024]){
+        c = d->name[d->name_len]; // save last byte
+        d->name[d->name_len] = 0; // make name into a string
+        prints(d->name); putc(' '); // show dp->name string
+        if ( strcmp(d->name, name) == 0 ){
+          prints("\n\r");
+          return((u16)d->inode);
+        }
+        d->name[d->name_len] = c; // restore last byte
+        d = (char *)d + d->rec_len;
+      }
+    }
+ }
+ return -1;
+}
+
+INODE *getINODE(int ino)
 {
 	int offset = 0;
 	int inoblock=0;
-	int blocknumber;
-	INODE * inode;	
-	
-	//printf("In getINODE ino = %d\n", ino);	
-	//printf("InoBeginBlk = %d\n", InoBeginBlk);
+	u16 blocknumber;
+	INODE * inode;
+
+	printf("In getINODE ino = %d\n", ino);
+	printf("InoBeginBlk = %d\n", InodeBeginBlk);
 
 	inoblock = (ino-1)/8;
 	offset = (ino-1)%8;
 
-	blocknumber = inoblock + InoBeginBlk;
-	get_block(blocknumber, buffer);
+	blocknumber = inoblock + InodeBeginBlk;
+	get_block(blocknumber, buffer3);
 
-	//printf("InoBeginBlk = %d\n", InoBeginBlk);
-	
+	//printf("InodeBeginBlk = %d\n", InodeBeginBlk);
+
 	// block is now in buffer
-	// access specific inode with offset 
-	inode = (INODE *)buffer + offset;
+	// access specific inode with offset
+	inode = (INODE *)buffer3 + offset;
 	printf("returning an inode %d ", ino);
 	//printf("at address %x from buffer %x\n",inode,buffer);
 	return inode;
 }
 
-/*int clear_bss(segment, tsize, dsize, bsize)
-u16 segment, tsize, dsize, bsize;
+
+
+int chopFirstStringElement(char path[10][32])
 {
-   u16 i,j, seg, tdsize, rem;
+  int i = 0, j = 0;
+  char temp[32];
 
-   tdsize = tsize + dsize;
-   seg = segment + (tdsize)/16;
+  /*while (strcmp(path[j], "") != 0)
+  {
+    printf("chop(): path[%d] = %s\n", j, path[j]);
+    j++;
+  }*/
 
-   rem = tdsize % 16;
-
-   for (i=0; i<rem; i++)
-     put_byte(0, seg, i);
-
-   for (j=0; j<bsize; j++)
-    put_byte(0, seg, j + i);
+  while (strcmp(path[i], "") != 0)
+  {
+    if (i)
+    {
+      strcpy(temp, path[i]);
+      strcpy(path[i-1], temp);
+    }
+    i++;
+  }
+  //make sure to null last string
+  strcpy(path[i-1], "");
+  return 1;
 }
-*/
 
 int parseInput(char *input, char parsedinput[10][32], char *delimiter)
 {

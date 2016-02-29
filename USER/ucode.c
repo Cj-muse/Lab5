@@ -37,8 +37,28 @@ int kswitch() { return syscall(4,0,0,0); }
 int wait(int *status) { return syscall(5,status,0,0); }
 int exit(int exitValue) { syscall(6,exitValue,0,0); }
 
-int fork() { return syscall(7,0,0,0); }
-int exec(char *s){ return syscall(8,s,0,0); }
+int fork()
+{
+  int child;
+  child = syscall(7,0,0,0);
+  if (child)
+    printf("parent % return form fork, child=%d\n", getpid(), child);
+  else
+    printf("child %d return from fork, child=%d\n", getpid(), child);
+}
+
+int exec()
+{
+  int r;
+  char filename[32];
+  printf("enter exec filename : ");
+  gets(filename);
+  r = syscall(8,filename,0,0);
+  printf("exec failed\n");
+}
+
+//int fork() { return syscall(7,0,0,0); }
+//int exec(char *s){ return syscall(8,s,0,0); }
 
 int cmgetc(){return syscall(9,0,0,0);}
 int cmputc(char c){return syscall(10,c,0,0);}
