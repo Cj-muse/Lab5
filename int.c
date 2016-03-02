@@ -19,7 +19,7 @@ int kcinth()
   c = get_word(segment, offset + 2*(PA+2));
   d = get_word(segment, offset + 2*(PA+3));
   /* route syscall call to kernel functions by call# a */
-
+  //printf("a = %d", a);
    switch(a){
        case 0 : r = kgetpid();        break;
        case 1 : r = kprintstatus();   break;
@@ -40,7 +40,7 @@ int kcinth()
        default: printf("invalid syscall # : %d\n", a);
 
    }
-    //printf("r = %d\n", r);
+   printf("r = %d\n", r);
 	 put_word(r, segment, offset + 2*AX); // return value in uax
    return;
 }

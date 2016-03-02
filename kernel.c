@@ -102,7 +102,9 @@ PROC *kfork(char *filename)
 	 u16 segment;
    PROC *p = get_proc(&freeList, FREE);
 
-   if (!p)
+	 printf("in kfork filename = %s\n", filename);
+	 printf("in kfork filename = %d\n", filename);
+	 if (!p)
    {
       printf("no more PROC, kfork() failed\n\r");
       return (-1);
@@ -136,7 +138,7 @@ PROC *kfork(char *filename)
 			put_word(0, segment, -2*i);
 		}
 
-		// Fill in uDS, uES, uCS
+			// Fill in uDS, uES, uCS
 		put_word(0x0200,  segment, -2*1);   /* flag */
 		put_word(segment,  segment, -2*2);   /* uCS */
 		put_word(segment,  segment, -2*11);   /* uES */
@@ -158,7 +160,7 @@ PROC *kfork(char *filename)
 
 int kgetpid()
 {
-			return running->pid;
+		return running->pid;
 }
 
 int kprintstatus()

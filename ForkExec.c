@@ -1,9 +1,11 @@
 #include "header.h"
 
 //loader
-/*int load(char *filename, u16 segment)
+int load(char *filename, u16 segment)
 {
-  int r = 0;
+  int r = 0, i = 0;
+  u16 w;
+  u32 *up;
   u32 codeSection, dataSection, bssSection;
   HEADER *header;
   printf("Load()\n");
@@ -11,7 +13,10 @@
   //1. find the inode of filename; return 0 if fails;
   r = getInodeFromFile(filename); // will store inode in ip
   if (r == 0)
-  {printf("could not find file...\n");}
+  {
+    printf("could not find file...\n");
+    return -1;
+  }
   printf("ino = %d\n", r);
   printf("inode.i_mode = %x\n", ip->i_mode);
 
@@ -32,9 +37,10 @@
   printf("loading file %s to segment %x\n", filename, segment);
   setes(segment);
 
-  //printf("loading direct blocks : \n");
+  printf("loading direct blocks : \n");
   for (i=0; i<12; i++)
   {
+    printf("i->i_block[%d] = %d\n", i, ip->i_block[i]);
     if (ip->i_block[i]==0){break;}
 
     //printf("loading i_block[%d] = %d\n", i, (u16)ip->i_block[i]);
@@ -42,54 +48,29 @@
     //putc('.');
     inces(); // increment es
  }
-
- // load indirect blocks if any
-  if ( (u16)ip->i_block[12])
-  {
-    up = (u32 *)b2;
-    while(*up)
-    {
-      getblk((u16)*up, 0); //putc('.');
-      inces();
-      up++;
-    }
-  }
+ /* load indirect blocks if any
+ if ((u16)ip->i_block[12])
+ {
+   up = (u32 *)buffer2;
+   while(*up)
+   {
+     getblk((u16)*up, 0); //putc('.');
+     inces();
+     up++;
+   }
+ }*/
 
   //4. clear bss section of loaded image to 0;
-  //clear_bss(segment, codeSection, dataSection, bssSection);
-
-  //5. return 1 for success;
-    printf("all things ran......................................\n");
-}*/
-
-int move(segment, tsize, dsize) u16 segment, tsize, dsize;
-{
-  u16 i,w;
-
-  for (i=0; i<=tsize+dsize; i+=2){
+  for (i=0; i <= codeSection+dataSection; i += 2)
+  {
       w = get_word(segment+2, i);
       put_word(w, segment, i);
   }
+
+  //5. return 1 for success;
+  printf("all things ran......................................\n");
+  return 1;
 }
-
-int clear_bss(segment, tsize, dsize, bsize)
-u16 segment, tsize, dsize, bsize;
-{
-   u16 i,j, seg, tdsize, rem;
-
-   tdsize = tsize + dsize;
-   seg = segment + (tdsize)/16;
-
-   rem = tdsize % 16;
-
-   for (i=0; i<rem; i++)
-     put_byte(0, seg, i);
-
-   for (j=0; j<bsize; j++)
-    put_byte(0, seg, j + i);
-}
-
-
 
 //Fork and Exec below
 int copyImage(u16 pseg, u16 cseg, u16 size)
@@ -105,8 +86,11 @@ int fork()
 {
   int pid; u16 segment;
 
-  PROC *p = kfork(0); // kfork() a child, do not load image file
-  //printf("p->pid = %d\n", p->pid);
+  PROC *p;
+  printf("in fork\n");
+  p = kfork(0); // kfork() a child, do not load image file
+
+  printf("p->pid = %d\n", p->pid);
   if (p==0)
   {
     return -1; // kfork failed
@@ -147,8 +131,8 @@ int kexec(char *y) // y points at filenmae in Umode space
 
  /* get filename from U space with a length limit of 64 */
  while( (*cp++ = get_byte(running->uss, y++)) && length++ < 64 );
- if (!load(filename, segment)); // load filename to segment
- return -1; // if load failed, return -1 to Umode
+ if (!load(filename, segment)) // load filename to segment
+ {return -1;} // if load failed, return -1 to Umode
 
  /* re-initialize process ustack for it return to VA=0 */
  for (i=1; i<=12; i++)

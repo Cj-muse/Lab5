@@ -19,7 +19,7 @@ sudo cp mtx /mnt/boot
 sudo umount /mnt
 rm *.o mtx
 
-(cd USER; ./mku u1)
+(cd USER; ./mku u1 u2)
 
 echo done
 

@@ -21,7 +21,7 @@ int body(void)
          case 'z': do_sleep(); break;
          case 'a': do_wake();  break;
          case 'w': do_wait();  break;
-         case 'u': goUmode();  break;
+         case 'u': printf("goumode\n");goUmode();  break;
          case 'p': do_ps();    break;
          case 'l': showLists();break;
          default: break;

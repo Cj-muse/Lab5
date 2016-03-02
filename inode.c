@@ -32,6 +32,7 @@ int findInode(char path[10][32])
 
     while (strcmp(path[i], "") != 0)
     {
+      printf("path[%d] = %s\n", i, path[i]);
       ino = search(path[i]);
       if (ino ==-1)
       {
@@ -142,6 +143,7 @@ int parseInput(char *input, char parsedinput[10][32], char *delimiter)
      i++;
   }
 
+  parsedinput[i][0] = 0;
   //number of seperate filenames returned
   return i;
 }
